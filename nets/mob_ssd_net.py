@@ -135,7 +135,7 @@ DepthSepConv = namedtuple('DepthSepConv', ['kernel', 'stride', 'depth'])
 
 # _CONV_DEFS specifies the MobileNet body
 _CONV_DEFS = [
-    Conv(kernel=[3, 3], stride=2, depth=32),  # 224*224 0
+    Conv(kernel=[3, 3], stride=2, depth=32),  # 224*224 0 -> go to dspconv with input 448
     DepthSepConv(kernel=[3, 3], stride=1, depth=64), # 224*224 1
     DepthSepConv(kernel=[3, 3], stride=2, depth=128), # 112*112 2
     DepthSepConv(kernel=[3, 3], stride=1, depth=128), # 112*112 3
@@ -184,11 +184,11 @@ class Mobilenet_SSD_Face(object):
         #               (162., 213.),
         #               (213., 264.),
         #               (264., 315.)],
-        anchor_ratios=[[1.2, 1.4, 1.6, 1.8],
-                       [1.1, 1.3, 1.5, 1.7],
-                       [1.5, 2.0, 2.5, 3.0],
-                       [1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0]],
-        anchor_steps=[8, 16, 32, 64, 100, 300],
+        anchor_ratios=[[2,0.5],
+                       [2,0.5,3,1.0/3],
+                       [2,0.5,3,1.0/3],
+                       [2,0.5,3,1.0/3]],
+        anchor_steps=[8, 16, 16, 32, 100, 300],
         anchor_offset=0.5,
         normalizations=[20, -1, -1, -1],
         prior_scaling=[0.1, 0.1, 0.2, 0.2]
