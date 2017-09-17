@@ -77,8 +77,17 @@ def get_index_from_id(id,num_list):
 
 def filter_with_other_label(face_bbx,blur_label,expression_label,illumination_label,
                                    invalid_label,occlusion_label,pose_label):
+    dump_blur = blur_label == 2
+    dump_invalid = invalid_label == 1
+    dump_illumination = illumination_label == 1
+    dump_occlusion = occlusion_label ==2
 
-    gt_boxes = face_bbx
+    dump = np.logical_or(dump_blur,dump_invalid)
+    dump = np.logical_or(dump,dump_illumination)
+    dump = np.logical_or(dump,dump_occlusion)
+    keep = np.where(dump == False)[0]
+    gt_boxes = face_bbx[keep,:]
+    # print ('after fileted:', gt_boxes)
     return gt_boxes
 
 
@@ -119,10 +128,6 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
                 # print (num_list)
                 filename = file_list[index[0]][0][index[1]][0][0]
                 face_bbx = face_bbx_list[index[0]][0][index[1]][0]
-                # add tail 1 as the class label
-                # face_bbx_shape = face_bbx.shape
-                # ones_tail = np.ones((face_bbx_shape[0],1))
-                # face_bbx = np.concatenate((face_bbx,ones_tail),axis = 1)
 
                 event = event_list[index[0]][0][0]
                 blur_label = blur_label_list[index[0]][0][index[1]][0]
@@ -135,6 +140,9 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
                 file_path = os.path.join(dataset_dir,DIRECTORY_IMAGES,event,filename+'.jpg')
                 # print (file_path)
                 img_raw = tf.gfile.FastGFile(file_path,'r').read()
+                # img = np.array(Image.open(file_path))
+                # img_raw = img.tostring()
+
                 img_shape = np.array(Image.open(file_path)).shape
                 height = img_shape[0]
                 width = img_shape[1]
@@ -142,7 +150,9 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
                 gt_boxes = filter_with_other_label(face_bbx,blur_label,expression_label,illumination_label,
                                                    invalid_label,occlusion_label,pose_label)
                 num_boxes = gt_boxes.shape[0]
-
+                if num_boxes == 0:
+                    print('no valid bbox here, dumped')
+                    continue
                 # gt_boxes_raw = gt_boxes.tostring()
                 # print (gt_boxes)
                 # print (gt_boxes.shape)

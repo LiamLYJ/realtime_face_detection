@@ -12,7 +12,7 @@ ITEMS_TO_DESCRIPTIONS = {
 }
 
 SPLITS_TO_SIZES = {
-    'train': 2602,
+    'test_val': 1,
 }
 
 NUM_CLASSES = 2
