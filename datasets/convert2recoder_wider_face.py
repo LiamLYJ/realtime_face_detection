@@ -110,7 +110,7 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
 
     num_shards = int(num/float(NUM_SHARDS))
     num_per_shard = int(math.ceil(num/float(num_shards)))
-
+    counter  =0
     for shard_id in range(num_shards):
         record_filename = get_output_filename(record_dir,
                         dataset_split_name,shard_id,num_shards)
@@ -162,9 +162,11 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
                 # example = to_tfexample_raw(img_raw,height,width,gt_boxes_raw,num_boxes)
                 example = to_tfexample_raw(img_raw,height,width,gt_boxes,num_boxes)
                 tfrecord_writer.write(example.SerializeToString())
+                counter = counter + 1
             tfrecord_writer.close()
     sys.stdout.write('\n')
     sys.stdout.flush()
+    print ('Counter = %d'%counter)
 
 def get_output_filename(record_dir, dataset_split_name, shard_id,num_shards):
     output_filename = '%s_%05d-of-%05d.tfrecord' % \
