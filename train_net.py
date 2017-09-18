@@ -137,14 +137,14 @@ tf.app.flags.DEFINE_integer(
 tf.app.flags.DEFINE_string(
     'dataset_split_name', 'train', 'The name of the train/test split.')
 tf.app.flags.DEFINE_string(
-    'dataset_dir', 'tf_records', 'The directory where the dataset files are stored.')
+    'dataset_dir', 'records', 'The directory where the dataset files are stored.')
 tf.app.flags.DEFINE_integer(
     'labels_offset', 0,
     'An offset for the labels in the dataset. This flag is primarily used to '
     'evaluate the VGG and ResNet architectures which do not use a background '
     'class for the ImageNet dataset.')
 tf.app.flags.DEFINE_string(
-    'model_name', 'mobilenet_ssd_face', 'The name of the architecture to train.')
+    'model_name', 'mob_ssd_net', 'The name of the architecture to train.')
 tf.app.flags.DEFINE_string(
     'preprocessing_name', None, 'The name of the preprocessing to use. If left '
     'as `None`, then the model_name flag is used.')
@@ -194,7 +194,7 @@ def main(_):
         global_step = slim.create_global_step()
         # ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs/checkpoint'))
         #os.path.dirname('./logs/')
-        ckpt_filename = os.path.dirname('./logs/') + '/mobilenet_v1_1.0_224.ckpt'
+        ckpt_filename = os.path.dirname('./pretrained/') + '/mobilenet_v1_1.0_224.ckpt'
         sess = tf.InteractiveSession()
 
         # Select the dataset.
@@ -247,9 +247,6 @@ def main(_):
             gt_features = tf.expand_dims(gt_features, -1)
             summaries.add(tf.summary.image("gt_map_%d" % f_i, tf.cast(gt_features, tf.float32)))
             f_i += 1
-            # for festures in gt_list:
-            #     summaries.add(tf.summary.image("gt_map_%d" % f_i, tf.cast(festures, tf.float32)))
-            #     f_i += 1
 
         arg_scope = ssd_net.arg_scope(weight_decay=FLAGS.weight_decay, data_format=DATA_FORMAT)
         with slim.arg_scope(arg_scope):
@@ -271,80 +268,14 @@ def main(_):
                        alpha=FLAGS.loss_alpha,
                        label_smoothing=FLAGS.label_smoothing)
 
-        # with tf.name_scope('kitti' + '_data_provider'):
-        #     provider_k = slim.dataset_data_provider.DatasetDataProvider(
-        #         dataset_kitti,
-        #         num_readers = FLAGS.num_readers,
-        #         common_queue_capacity = 20 * FLAGS.batch_size,
-        #         common_queue_min = 10 * FLAGS.batch_size,
-        #         shuffle = True
-        #     )
-        # [image_k, shape_k, glabels_k, gbboxes_k] = provider_k.get(['image', 'shape', 'object/label', 'object/bbox'])
-        #
-        # image_preprocessing_fn_k = preprocessing_factory.get_preprocessing('kitti', is_training=True)
-        # image_k, glabels_k, gbboxes_k = \
-        #     image_preprocessing_fn_k(image_k, glabels_k, gbboxes_k, out_shape = ssd_shape, data_format = DATA_FORMAT)
-        #
-        # gclasses_k, glocalisations_k, gscores_k = \
-        #     ssd_net.bboxes_encode(glabels_k, gbboxes_k, ssd_anchors)
-        # #batch_shape = [1] + [len(ssd_anchors)] * 3
-        #
-        # r_k = tf.train.batch(
-        #     tf_utils.reshape_list([image_k, gclasses_k, glocalisations_k, gscores_k]),
-        #     batch_size=FLAGS.batch_size,
-        #     num_threads=FLAGS.num_preprocessing_threads,
-        #     capacity= 5 * FLAGS.batch_size
-        # )
-        #
-        # b_image_k, b_gclasses_k, b_glocalisations_k, b_gscores_k = \
-        #     tf_utils.reshape_list(r_k, batch_shape)
-        #
-        # summaries.add(tf.summary.image("k_imgs", tf.cast(b_image_k, tf.float32)))
-        #
-        # f_i = 0
-        # for gt_map in b_gscores_k:
-        #     gt_features = tf.reduce_max(gt_map, axis=3)
-        #     gt_features = tf.expand_dims(gt_features, -1)
-        #     summaries.add(tf.summary.image("k_gt_map_%d" % f_i, tf.cast(gt_features, tf.float32)))
-        #     f_i += 1
-        #     # for festures in gt_list:
-        #     #     summaries.add(tf.summary.image("gt_map_%d" % f_i, tf.cast(festures, tf.float32)))
-        #     #     f_i += 1
-        #
-        # arg_scope = ssd_net.arg_scope(weight_decay=FLAGS.weight_decay, data_format=DATA_FORMAT)
-        # with slim.arg_scope(arg_scope):
-        #     predictions_k, localisations_k, logits_k, end_points_k = \
-        #         ssd_net.net(b_image_k, is_training=True, reuse=True)
-        #
-        # f_i = 0
-        # for predict_map in predictions_k:
-        #     predict_map = predict_map[:, :, :, :, 1:]
-        #     predict_map = tf.reduce_max(predict_map, axis=4)
-        #     predict_map = tf.reduce_max(predict_map, axis=3)
-        #     predict_map = tf.expand_dims(predict_map, -1)
-        #     summaries.add(tf.summary.image("k_predicte_map_%d" % f_i, tf.cast(predict_map, tf.float32)))
-        #     f_i += 1
-        #
-        # ssd_net.losses(logits_k, localisations_k, b_gclasses_k, b_glocalisations_k, b_gscores_k, 2,
-        #                match_threshold=FLAGS.match_threshold,
-        #                negative_ratio=FLAGS.negative_ratio,
-        #                alpha=FLAGS.loss_alpha,
-        #                label_smoothing=FLAGS.label_smoothing)
-
-
-
-        #total_loss = slim.losses.get_total_loss()
         total_loss = tf.losses.get_total_loss()
         summaries.add(tf.summary.scalar('loss', total_loss))
 
         for loss in tf.get_collection(tf.GraphKeys.LOSSES):
             summaries.add(tf.summary.scalar(loss.op.name, loss))
 
-        # for variable in slim.get_model_variables():
-        #     summaries.add(tf.summary.histogram(variable.op.name, variable))
         for variable in tf.trainable_variables():
             summaries.add(tf.summary.histogram(variable.op.name, variable))
-
 
         learning_rate = tf_utils.configure_learning_rate(FLAGS, dataset.num_samples, global_step)
         optimizer = tf_utils.configure_optimizer(FLAGS, learning_rate)
@@ -393,26 +324,10 @@ def main(_):
                     global_step_str = global_step.eval()
                     print('%diteraton' % (global_step_str))
                     train_writer.add_summary(summary_str, global_step_str)
-                if i % 100 == 0:
+                if i % 10000 == 0:
                     global_step_str = global_step.eval()
                     saver.save(sess, "./logs/",global_step=global_step_str)
-
                 i += 1
-
-        # slim.learning.train(
-        #     train_op,
-        #     logdir=FLAGS.train_dir,
-        #     init_fn=tf_utils.get_init_fn(FLAGS),
-        #     #summary_op = summary_op,
-        #     number_of_steps = FLAGS.max_number_of_steps,
-        #     log_every_n_steps = FLAGS.log_every_n_steps,
-        #     save_summaries_secs=FLAGS.save_summaries_secs,
-        #     saver = saver,
-        #     save_interval_secs = FLAGS.save_interval_secs,
-        #     session_config = config,
-        #     sync_optimizer=None
-        # )
-
 
 if __name__ == '__main__':
     tf.app.run()

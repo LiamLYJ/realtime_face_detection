@@ -27,11 +27,11 @@ networks_map = {
                 }
 
 arg_scopes_map = {
-                  'mod_ssd_net': mob_ssd_net.mobilenet_ssd_face_arg_scope,
+                  'mob_ssd_net': mob_ssd_net.mobilenet_ssd_face_arg_scope,
                   }
 
 networks_obj = {
-                'mod_ssd_net': mob_ssd_net.Mobilenet_SSD_Face,
+                'mob_ssd_net': mob_ssd_net.Mobilenet_SSD_Face,
                 }
 
 

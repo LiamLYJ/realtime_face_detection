@@ -10,8 +10,10 @@ slim = tf.contrib.slim
 
 batch_size = 10
 num_readers = 4
+# dataset = dataset_factory.get_dataset(
+#     'wider_face', 'test_val', './records')
 dataset = dataset_factory.get_dataset(
-    'wider_face', 'test_val', './records')
+    'wider_face', 'train', './records')
 with tf.Graph().as_default():
     sess = tf.InteractiveSession()
     provider = slim.dataset_data_provider.DatasetDataProvider(
@@ -27,6 +29,10 @@ with tf.Graph().as_default():
     img_4d = tf.expand_dims(image,0)
     w = tf.cast(shape,tf.float32)[1]
     h = tf.cast(shape,tf.float32)[0]
+    # if already convert to [0,1]
+    w=1.0
+    h=1.0
+
     y1 = gbboxes[:,0] / h
     y2 = gbboxes[:,2] / h
     x1 = gbboxes[:,1] / w
@@ -36,11 +42,11 @@ with tf.Graph().as_default():
     sess.run(tf.global_variables_initializer())
     with slim.queues.QueueRunners(sess):
 
-        # print ('shape; glabel,gboxes,num_box:',sess.run([shape,glabels,gbboxes,num]))
-        import matplotlib.pyplot as plt
-        tensor_img_with_gt = tf.cast(tensor_img_with_gt,tf.uint8)
-        plt.imshow(tensor_img_with_gt.eval()[0])
-        plt.show()
+        print ('shape; glabel,gboxes,num_box:',sess.run([shape,glabels,gbboxes,num]))
+        # import matplotlib.pyplot as plt
+        # tensor_img_with_gt = tf.cast(tensor_img_with_gt,tf.uint8)
+        # plt.imshow(tensor_img_with_gt.eval()[0])
+        # plt.show()
 raise
 
 data = sio.loadmat('/Users/liuyongjie/Desktop/realtime_face_detection/wider_face_split/wider_face_val.mat')

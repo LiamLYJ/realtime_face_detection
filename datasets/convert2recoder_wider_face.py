@@ -46,10 +46,12 @@ from datasets.dataset_utils import \
 
 # Original dataset organisation.
 DIRECTORY_ANNOTATIONS = 'wider_face_split'
-DIRECTORY_IMAGES = 'WIDER_val/images'
-ANNOTATION_NAME = 'wider_face_val.mat'
+# DIRECTORY_IMAGES = 'WIDER_val/images'
+DIRECTORY_IMAGES = 'WIDER_train/images'
+# ANNOTATION_NAME = 'wider_face_val.mat'
+ANNOTATION_NAME = 'wider_face_train.mat'
 # TFRecords convertion parameters.
-NUM_SHARDS = 1000
+NUM_SHARDS = 5000
 
 def get_num_images(file_list):
     counter = 0
@@ -82,9 +84,14 @@ def filter_with_other_label(face_bbx,blur_label,expression_label,illumination_la
     dump_illumination = illumination_label == 1
     dump_occlusion = occlusion_label ==2
 
-    dump = np.logical_or(dump_blur,dump_invalid)
+    # over_occluded is not considered
+    dump = dump_occlusion
+    # invalid is not considered
+    dump = np.logical_or(dump,dump_invalid)
+    # over_blured is not considerd
+    dump = np.logical_or(dump,dump_blur)
+    # over_illuminated is not considered
     dump = np.logical_or(dump,dump_illumination)
-    dump = np.logical_or(dump,dump_occlusion)
     keep = np.where(dump == False)[0]
     gt_boxes = face_bbx[keep,:]
     # print ('after fileted:', gt_boxes)
@@ -159,8 +166,12 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
                 # raise
 
                 # put image_data, height, width,gt_boxes,num_boxes into tfrecorder
-                # example = to_tfexample_raw(img_raw,height,width,gt_boxes_raw,num_boxes)
-                example = to_tfexample_raw(img_raw,height,width,gt_boxes,num_boxes)
+                try:
+                    # example = to_tfexample_raw(img_raw,height,width,gt_boxes_raw,num_boxes)
+                    example = to_tfexample_raw(img_raw,height,width,gt_boxes,num_boxes)
+                except:
+                    print ('\n***********dumped')
+                    continue
                 tfrecord_writer.write(example.SerializeToString())
                 counter = counter + 1
             tfrecord_writer.close()

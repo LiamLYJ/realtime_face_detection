@@ -32,11 +32,11 @@ def to_tfexample_raw(image_data, height, width,gt_boxes,num_boxes ):
     boxes[:,2] = gt_boxes[:,0] + gt_boxes[:,2]
     boxes[:,3] = gt_boxes[:,1] + gt_boxes[:,3]
 
-    # normalize to [0,1] not sure should do it or not
-    # boxes[:,0] = boxes[:,0] / float(width)
-    # boxes[:,2] = boxes[:,2] / float(width)
-    # boxes[:,1] = boxes[:,1] / float(height)
-    # boxes[:,3] = boxes[:,3] / float(height)
+    # normalize to [0,1]
+    boxes[:,0] = boxes[:,0] / float(width)
+    boxes[:,2] = boxes[:,2] / float(width)
+    boxes[:,1] = boxes[:,1] / float(height)
+    boxes[:,3] = boxes[:,3] / float(height)
 
     xmin = []
     ymin = []
@@ -47,6 +47,20 @@ def to_tfexample_raw(image_data, height, width,gt_boxes,num_boxes ):
         [l.append(point) for l,point in zip([xmin, ymin, xmax, ymax],b)]
     labels = [1]*num_boxes
     image_format = b'JPG'
+
+    if (np.any(np.array(xmin) < 0) or np.any(np.array(xmin) >1)):
+        print ('xmin_ break,dump this')
+        raise
+    if (np.any(np.array(xmax) < 0) or np.any(np.array(xmax) >1)):
+        print ('xmax_ break,dump this')
+        raise
+    if (np.any(np.array(ymin) < 0) or np.any(np.array(ymin) >1)):
+        print ('ymin_ break,dump this')
+        raise
+    if (np.any(np.array(ymax) < 0) or np.any(np.array(ymax) >1)):
+        print ('ymax_ break,dump this')
+        raise
+
     return tf.train.Example(features=tf.train.Features(feature={
         'image/encoded': bytes_feature(image_data),
         'image/height': int64_feature(height),
