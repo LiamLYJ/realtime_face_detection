@@ -87,7 +87,7 @@ def filter_with_other_label(face_bbx,blur_label,expression_label,illumination_la
     # over_occluded is not considered
     dump = dump_occlusion
     # invalid is not considered
-    dump = np.logical_or(dump,dump_invalid)
+    # dump = np.logical_or(dump,dump_invalid)
     # over_blured is not considerd
     dump = np.logical_or(dump,dump_blur)
     # over_illuminated is not considered
