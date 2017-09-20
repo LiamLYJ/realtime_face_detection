@@ -29,6 +29,6 @@ with tf.Graph().as_default() as graph:
         for node in output_graph_def.node:
             f.write(node.name + '\n')
 
-    output_graph = './mobilenet_traffic_both.pb'
+    output_graph = './mob_ssd_net.pb'
     with gfile.FastGFile(output_graph, 'wb') as f:
         f.write(output_graph_def.SerializeToString())
