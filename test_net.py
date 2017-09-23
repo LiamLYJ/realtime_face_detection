@@ -129,7 +129,9 @@ def draw_results(img, rclasses, rscores, rbboxes, index, img_name):
         ymax = int(rbboxes[i, 2] * height)
         xmax = int(rbboxes[i, 3] * width)
         cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (0, 0, 255), thickness=3)
-        cv2.putText(img, LABELS[rclasses[i]], (xmin, ymin),
+        # cv2.putText(img, LABELS[rclasses[i]], (xmin, ymin),
+        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),thickness = 2)
+        cv2.putText(img, str(rscores[i]), (xmin, ymin),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),thickness = 2)
     cv2.imwrite('./%s/test_%d.jpg' %(result_path,index), img)
 
