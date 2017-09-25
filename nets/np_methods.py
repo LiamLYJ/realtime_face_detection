@@ -88,11 +88,19 @@ def ssd_bboxes_select_layer(predictions_layer,
         scores = scores[mask]
         bboxes = localizations_layer[mask]
     else:
+        # print ('predictions_layer shape ', predictions_layer.shape)
         sub_predictions = predictions_layer[:, :, 1:]
+        # print (sub_predictions)
+        # print (sub_predictions.shape)
         idxes = np.where(sub_predictions > select_threshold)
+        # print (idxes)
         classes = idxes[-1]+1
         scores = sub_predictions[idxes]
         bboxes = localizations_layer[idxes[:-1]]
+        # print (localizations_layer.shape)
+        # print (bboxes.shape)
+        # print ('***********')
+        # raise
 
     return classes, scores, bboxes
 
@@ -145,6 +153,10 @@ def bboxes_sort(classes, scores, bboxes, top_k=400):
     #     inside = inside[idxes]
     #     idxes = np.concatenate([idxes[inside], idxes[~inside]])
     idxes = np.argsort(-scores)
+    # print ('shape of scores:',scores.shape)
+    # print ('***************')
+    # print (scores)
+    # print ('top_k',top_k)
     classes = classes[idxes][:top_k]
     scores = scores[idxes][:top_k]
     bboxes = bboxes[idxes][:top_k]

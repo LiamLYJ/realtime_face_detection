@@ -184,8 +184,9 @@ def bboxes_nms(scores, bboxes, nms_threshold=0.5, keep_top_k=200, scope=None):
         scores = tf.gather(scores, idxes)
         bboxes = tf.gather(bboxes, idxes)
         # Pad results.
-        scores = tfe_tensors.pad_axis(scores, 0, keep_top_k, axis=0)
-        bboxes = tfe_tensors.pad_axis(bboxes, 0, keep_top_k, axis=0)
+        # I comment pad for pb file (lyj.9/26)
+        # scores = tfe_tensors.pad_axis(scores, 0, keep_top_k, axis=0)
+        # bboxes = tfe_tensors.pad_axis(bboxes, 0, keep_top_k, axis=0)
         return scores, bboxes
 
 

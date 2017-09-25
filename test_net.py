@@ -99,12 +99,22 @@ def process_image(img, select_threshold=0.06, nms_threshold=0.25, net_shape=(440
             select_threshold=select_threshold, img_shape=net_shape, num_classes=2, decode=True)
 
     rbboxes = np_methods.bboxes_clip(rbbox_img, rbboxes)
+    print ('shape pf classes:',rclasses.shape)
+    print (rclasses)
+    print ('shape of scores:',rscores.shape)
+    print (rscores)
+    print ('shape of bboxes:',rbboxes.shape)
+    print (rbboxes)
+    print ('**************')
+    raise
     rclasses, rscores, rbboxes = np_methods.bboxes_sort(rclasses, rscores, rbboxes, top_k=400)
+    # print ('2_rclasses:' ,rclasses)
     rclasses, rscores, rbboxes = np_methods.bboxes_nms(rclasses, rscores, rbboxes, nms_threshold=nms_threshold)
     # Resize bboxes to original image shape. Note: useless for Resize.WARP!
+    # print ('3_rclasses:' ,rclasses)
     rbboxes = np_methods.bboxes_resize(rbbox_img, rbboxes)
     summer_writer.add_summary(summary_op_str, 1)
-    print rclasses, rscores, rbboxes
+    # print rclasses, rscores, rbboxes
     return rclasses, rscores, rbboxes
 
 
@@ -142,9 +152,10 @@ for root, dirs, files in os.walk(img_path):
 # print image_names
 
 index = 1
-for image_name in image_names:
+for image_name in image_names[1:]:
     img = cv2.imread(image_name)
     destRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     rclasses, rscores, rbboxes =  process_image(destRGB)
+    # print ("rclasses:", rclasses)
     draw_results(img, rclasses, rscores, rbboxes, index, image_name)
     index += 1
