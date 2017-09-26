@@ -34,8 +34,10 @@ select_threshold = 0.06
 nms_threshold = 0.25
 
 with tf.Graph().as_default() as graph:
-    input_tensor = tf.placeholder(tf.float32, shape=(1, 440, 440, 3), name='input_image')
-    input_for_preprocess = tf.squeeze(input_tensor)
+    input_tensor = tf.placeholder(tf.float32, shape=(None, 440, 440, 3), name='input_image')
+    # input_for_preprocess = tf.squeeze(input_tensor)
+    # only chooses the first frame 
+    input_for_preprocess = input_tensor[0]
     input_for_preprocess = tf.cast(input_for_preprocess, tf.uint8)
     image_pre, labels_pre, bboxes_pre, bbox_img = owndata_preprocessing.preprocess_for_eval(
         input_for_preprocess, None, None, net_shape, data_format, resize=owndata_preprocessing.Resize.WARP_RESIZE)

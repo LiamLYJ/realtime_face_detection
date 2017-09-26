@@ -100,8 +100,23 @@ def tf_ssd_bboxes_select_layer(predictions_layer,
 
         localizations_layer = tf.squeeze(localizations_layer)
 
-        bboxes = tf.gather_nd(localizations_layer,idxes)
-        scores = tf.gather_nd(sub_predictions,idxes)
+        # can't use tf.gather_nd,it's not registed on IOS-tensorflow
+        # idxse = tf.cast(idxes,tf.int32)
+        # bboxes = tf.gather_nd(localizations_layer,idxes)
+        # scores = tf.gather_nd(sub_predictions,idxes)
+
+        # use tf.gather method
+        # idxes = tf.squeeze(tf.cast(idxes, tf.int32))
+        idxse = tf.cast(idxes,tf.int32)
+        scores = tf.squeeze(tf.gather(sub_predictions,idxes),axis = 1)
+        bboxes = tf.squeeze(tf.gather(localizations_layer,idxes), axis =1)
+
+        # print ('shape of idxes:',idxes.shape)
+        # print ('shape of sub_predictions:',sub_predictions.shape)
+        # print ('shape of localizations_net:',localizations_layer.shape)
+        # print ('shape of bboxes:',bboxes.shape)
+        # print ('shape of scores:',scores.shape)
+        # raise
 
         classes = tf.ones_like(scores)
         # print ('shape of classes:',classes.shape)
