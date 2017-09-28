@@ -23,7 +23,9 @@ def load_graph(frozen_graph_filename):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # parser.add_argument("--frozen_model_filename", default="./mob_ssd_net.pb", type=str, help="Frozen model file to import")
-    parser.add_argument("--frozen_model_filename", default="./mob_ssd_net_prepro.pb", type=str, help="Frozen model file to import")
+    # parser.add_argument("--frozen_model_filename", default="./mob_ssd_net_prepro.pb", type=str, help="Frozen model file to import")
+    # parser.add_argument("--frozen_model_filename", default="./optimized_graph.pb", type=str, help="Frozen model file to import")
+    parser.add_argument("--frozen_model_filename", default="./rounded_graph.pb", type=str, help="Frozen model file to import")
     args = parser.parse_args()
     graph = load_graph(args.frozen_model_filename)
 
@@ -40,7 +42,7 @@ if __name__ == '__main__':
     image = Image.open(file_path)
     img = image.resize((440,440), Image.ANTIALIAS)
     input = np.expand_dims(np.array(img),0)
-    
+
     with tf.Session(graph=graph) as sess:
         y_out = sess.run(y, feed_dict={
             x: input

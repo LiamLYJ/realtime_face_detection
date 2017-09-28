@@ -26,13 +26,17 @@
 // you've added the file to your app resources too.
 //static NSString* model_file_name = @"tensorflow_inception_graph";
 //static NSString* model_file_name = @"mob_ssd_net";
-static NSString* model_file_name = @"mob_ssd_net_prepro";
+//static NSString* model_file_name = @"mob_ssd_net_prepro";
+//static NSString* model_file_name = @"optimized_graph";
+//static NSString* model_file_name = @"rounded_graph";
+//static NSString* model_file_name = @"mmapped_graph";
+static NSString* model_file_name = @"f_mmapped_graph";
 static NSString* model_file_type = @"pb";
 // This controls whether we'll be loading a plain GraphDef proto, or a
 // file created by the convert_graphdef_memmapped_format utility that wraps a
 // GraphDef and parameter file that can be mapped into memory from file to
 // reduce overall memory usage.
-const bool model_uses_memory_mapping = false;
+const bool model_uses_memory_mapping = true;
 // If you have your own model, point this to the labels file.
 static NSString* labels_file_name = @"imagenet_comp_graph_label_strings";
 static NSString* labels_file_type = @"txt";

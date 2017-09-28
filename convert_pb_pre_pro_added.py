@@ -36,7 +36,7 @@ nms_threshold = 0.25
 with tf.Graph().as_default() as graph:
     input_tensor = tf.placeholder(tf.float32, shape=(None, 440, 440, 3), name='input_image')
     # input_for_preprocess = tf.squeeze(input_tensor)
-    # only chooses the first frame 
+    # only chooses the first frame
     input_for_preprocess = input_tensor[0]
     input_for_preprocess = tf.cast(input_for_preprocess, tf.uint8)
     image_pre, labels_pre, bboxes_pre, bbox_img = owndata_preprocessing.preprocess_for_eval(
@@ -83,10 +83,10 @@ with tf.Graph().as_default() as graph:
 
 
         # try feed forward graph
-        # file_path = './test_img/1_Handshaking_Handshaking_1_134.jpg'
-        # image = Image.open(file_path)
-        # img = image.resize((440,440), Image.ANTIALIAS)
-        # input = np.expand_dims(np.array(img),0)
+        file_path = './train_img/20_Family_Group_Family_Group_20_33.jpg'
+        image = Image.open(file_path)
+        img = image.resize((440,440), Image.ANTIALIAS)
+        input = np.expand_dims(np.array(img),0)
         # run threshold selected nodes
         # rclasses, rscores, rbboxes,rpredictions, rlocalisations = sess.run(
         #     [_classes,_scores,_bboxes,predictions, localisations], feed_dict={
@@ -102,14 +102,14 @@ with tf.Graph().as_default() as graph:
         # print (rbboxes)
         # print ('shape of rbboxes:',rbboxes.shape)
         # run after nms nodes
-        # rclasses_,rscores_, rbboxes_ = sess.run(
-        #     [classes_,scores_,bboxes_], feed_dict={
-        #     input_tensor: input
-        # })
-        # print('rscores_:',rscores_)
-        # print('rbboxes:',rbboxes_)
-        # draw_results(img,rclasses_,rscores_,rbboxes_)
-        # raise
+        rclasses_,rscores_, rbboxes_ = sess.run(
+            [classes_,scores_,bboxes_], feed_dict={
+            input_tensor: input
+        })
+        print('rscores_:',rscores_)
+        print('rbboxes:',rbboxes_)
+        draw_results(image,rclasses_,rscores_,rbboxes_)
+        raise
 
         output_node_names = 'final_bboxes,final_scores'
         input_graph_def = graph.as_graph_def()
