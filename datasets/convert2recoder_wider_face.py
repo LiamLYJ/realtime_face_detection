@@ -80,18 +80,29 @@ def get_index_from_id(id,num_list):
 def filter_with_other_label(face_bbx,blur_label,expression_label,illumination_label,
                                    invalid_label,occlusion_label,pose_label):
     dump_blur = blur_label == 2
-    dump_invalid = invalid_label == 1
+    dump_expression = expression_label == 1
     dump_illumination = illumination_label == 1
+    dump_invalid = invalid_label == 1
     dump_occlusion = occlusion_label ==2
+    dump_pose = pose_label == 1
+    # any of w or h < 16 will be dump
+    dump_scale = np.logical_or(face_bbx[:,2]<20, face_bbx[:,3]<20)
 
+    dump = dump_scale
     # over_occluded is not considered
-    dump = dump_occlusion
-    # invalid is not considered
-    # dump = np.logical_or(dump,dump_invalid)
+    dump = np.logical_or(dump,dump_occlusion)
     # over_blured is not considerd
     dump = np.logical_or(dump,dump_blur)
+    # bad expression is not considered
+    dump = np.logical_or(dump,dump_expression)
     # over_illuminated is not considered
-    dump = np.logical_or(dump,dump_illumination)
+    # dump = np.logical_or(dump,dump_illumination)
+    # invalid is not considered
+    # dump = np.logical_or(dump,dump_invalid)
+    # atypical is not considered
+    dump = np.logical_or(dump,dump_pose)
+    # too small box is not considered
+    dump = np.logical_or(dump,dump_scale)
     keep = np.where(dump == False)[0]
     gt_boxes = face_bbx[keep,:]
     # print ('after fileted:', gt_boxes)
