@@ -159,7 +159,7 @@ class Mobilenet_SSD_Face(object):
         feat_shapes=[(55, 55), (28, 28), (28, 28), (14, 14)],
         # feat_layers=['block7', 'block8', 'block9', 'block10', 'block11'],
         # feat_shapes=[(19, 19), (10, 10), (5, 5), (3, 3), (1, 1)],
-        anchor_size_bounds=[0.01, 0.4],
+
         # anchor_size_bounds=[0.20, 0.90],
         # anchor_sizes=[(20., 10.),
         #               (40., 20.),
@@ -173,10 +173,17 @@ class Mobilenet_SSD_Face(object):
         #             (22., 46.),
         #             (28., 52.),
         #             (36., 70.)],
-        anchor_sizes=[(10., 18.),
-                    (18., 32.),
-                    (28., 52.),
-                    (36., 70.)],
+        # old one for train wider_face with input 440*440
+        # anchor_sizes=[(10., 18.),
+        #     (18., 32.),
+        #     (28., 52.),
+        #     (36., 70.)],
+
+        # new one with input 440*440
+        anchor_sizes=[(20., 55.),
+                    (55., 90.),
+                    (90., 125.),
+                    (125., 160.)],
 
         # anchor_sizes=[(30., 60.),
         #               (60., 111.),
@@ -184,10 +191,18 @@ class Mobilenet_SSD_Face(object):
         #               (162., 213.),
         #               (213., 264.),
         #               (264., 315.)],
-        anchor_ratios=[[2,0.5,1,1.5,1./1.5],
-                       [2,0.5,1,1.5,1./1.5],
-                       [2,0.5,1,1.5,1./1.5],
-                       [2,0.5,1,1.5,1./1.5]],
+
+        # old one for train wider_face with input 440*440
+        # anchor_ratios=[[2,0.5,1,1.5,1./1.5],
+        #                [2,0.5,1,1.5,1./1.5],
+        #                [2,0.5,1,1.5,1./1.5],
+        #                [2,0.5,1,1.5,1./1.5]],
+        # new one with input 440*440
+        anchor_ratios=[[1./1.2, 1./1.4],
+                       [1./1.2, 1./1.5, 1./1.8],
+                       [1./1.2, 1./1.5, 1./1.8, 1./2],
+                       [1./1.2, 1./1.5, 1./1.8, 1./2]],
+
         anchor_steps=[8, 16, 16, 32, 100, 300],
         anchor_offset=0.5,
         normalizations=[20, -1, -1, -1],
@@ -695,29 +710,35 @@ def ssd_anchor_one_layer(img_shape,
     num_anchors = len(sizes) + len(ratios)
     h = np.zeros((num_anchors, ), dtype=dtype)
     w = np.zeros((num_anchors, ), dtype=dtype)
+
     # Add first anchor boxes with ratio=1.
-
     h[0] = sizes[0] / img_shape[0]
-    w[0] = sizes[1] / img_shape[1]
-
-    h[1] = sizes[0] / img_shape[0] * 1.2
-    w[1] = sizes[1] / img_shape[1] * 4.0
-
-    di = 2
-
+    w[0] = sizes[0] / img_shape[1]
+    di = 1
+    if len(sizes) > 1:
+        h[1] = math.sqrt(sizes[0] * sizes[1]) / img_shape[0]
+        w[1] = math.sqrt(sizes[0] * sizes[1]) / img_shape[1]
+        di += 1
     for i, r in enumerate(ratios):
-        h[i+di] = sizes[0] / img_shape[0] * r
-        w[i+di] = sizes[1] / img_shape[1] * r
-    # else:
-    #     h[0] = sizes[0] / img_shape[0]
-    #     w[0] = sizes[1] / img_shape[1]
-    #     di = 1
-    #
-    #     for i, r in enumerate(ratios):
-    #         h[i+di] = sizes[0] / img_shape[0] * r
-    #         w[i+di] = sizes[1] / img_shape[1] * r
-
+        h[i+di] = sizes[0] / img_shape[0] / math.sqrt(r)
+        w[i+di] = sizes[0] / img_shape[1] * math.sqrt(r)
     return y, x, h, w
+
+    # old one for train wider_face with input 440*440
+    # h[0] = sizes[0] / img_shape[0]
+    # w[0] = sizes[1] / img_shape[1]
+    #
+    # h[1] = sizes[0] / img_shape[0] * 1.2
+    # w[1] = sizes[1] / img_shape[1] * 4.0
+    #
+    # di = 2
+    #
+    # for i, r in enumerate(ratios):
+    #     h[i+di] = sizes[0] / img_shape[0] * r
+    #     w[i+di] = sizes[1] / img_shape[1] * r
+    #
+    # return y, x, h, w
+
 
 
 def ssd_anchors_all_layers(img_shape,
