@@ -99,36 +99,23 @@ def process_image(img, select_threshold=0.06, nms_threshold=0.25, net_shape=(440
             select_threshold=select_threshold, img_shape=net_shape, num_classes=2, decode=True)
 
     rbboxes = np_methods.bboxes_clip(rbbox_img, rbboxes)
-    print ('shape pf classes:',rclasses.shape)
-    print (rclasses)
-    print ('shape of scores:',rscores.shape)
-    print (rscores)
-    print ('shape of bboxes:',rbboxes.shape)
-    print (rbboxes)
-    print ('**************')
-    raise
+    # print ('shape pf classes:',rclasses.shape)
+    # print (rclasses)
+    # print ('shape of scores:',rscores.shape)
+    # print (rscores)
+    # print ('shape of bboxes:',rbboxes.shape)
+    # print (rbboxes)
+    # print ('**************')
+    # raise
     rclasses, rscores, rbboxes = np_methods.bboxes_sort(rclasses, rscores, rbboxes, top_k=400)
     # print ('2_rclasses:' ,rclasses)
     rclasses, rscores, rbboxes = np_methods.bboxes_nms(rclasses, rscores, rbboxes, nms_threshold=nms_threshold)
     # Resize bboxes to original image shape. Note: useless for Resize.WARP!
     # print ('3_rclasses:' ,rclasses)
     rbboxes = np_methods.bboxes_resize(rbbox_img, rbboxes)
-    summer_writer.add_summary(summary_op_str, 1)
+    # summer_writer.add_summary(summary_op_str, 1)
     # print rclasses, rscores, rbboxes
     return rclasses, rscores, rbboxes
-
-
-result_path = RESULT_PATH
-if not os.path.exists(result_path):
-    os.mkdir(result_path)
-
-if result_path == './result_train':
-    img_path = './train_img/'
-else:
-    img_path = './test_img/'
-
-image_names = []
-
 
 def draw_results(img, rclasses, rscores, rbboxes, index, img_name):
 
@@ -142,10 +129,78 @@ def draw_results(img, rclasses, rscores, rbboxes, index, img_name):
         # cv2.putText(img, LABELS[rclasses[i]], (xmin, ymin),
         #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),thickness = 2)
         cv2.putText(img, str(rscores[i]), (xmin, ymin),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),thickness = 2)
-    cv2.imwrite('./%s/test_%d.jpg' %(result_path,index), img)
+        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255),thickness = 2)
+
+        cv2.imwrite('./%s/test_%d.jpg' %(result_path,index), img)
 
 
+# evalure molde for precision and recall
+import re
+from evaluation import evaluate
+file_path = './eval_file.txt'
+image_folder = './WIDER_train/images'
+image_path = []
+GT = []
+
+with open(file_path) as f:
+    count = 0
+    for line in f:
+        if (re.search('_',line)) :
+            # erase the '\n' in line
+            image_path.append(os.path.join(image_folder,line[:-1]))
+            count = 0
+        elif len(line.split(' ')) < 2 :
+            num = int(line)
+            boxes = np.ones((num,4))
+        else :
+            tmp = line.split(' ')
+            boxes[count,0] = int(tmp[0])
+            boxes[count,1] = int(tmp[1])
+            boxes[count,2] = int(tmp[0]) + int(tmp[2])
+            boxes[count,3] = int(tmp[1]) + int(tmp[3])
+            count += 1
+            if count == num :
+                GT.append(boxes)
+
+sum_pre = 0
+sum_gt = 0
+sum_precision = 0
+sum_recall = 0
+threshold = 0.1
+
+for i,j in enumerate(image_path):
+    img = cv2.imread(str(image_path[i]))
+    height, width,_ = img.shape[:3]
+    destRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    rclasses, rscores, rbboxes =  process_image(destRGB)
+    pre = np.ones(rbboxes.shape)
+    pre[:,0] = rbboxes[:,1] * width
+    pre[:,1] = rbboxes[:,0] * height
+    pre[:,2] = rbboxes[:,3] * width
+    pre[:,3] = rbboxes[:,2] * height
+    gt = np.array(GT[i])
+    count_precision, count_recall = evaluate(pre,gt,threshold = threshold)
+    sum_precision += count_precision
+    sum_recall += count_recall
+    sum_gt += gt.shape[0]
+    sum_pre += pre.shape[0]
+
+print ('the precision is :', float(sum_precision) / sum_pre)
+print ('the recall is :', float(sum_recall)/ sum_gt)
+
+raise
+
+# draw testing results 
+result_path = RESULT_PATH
+if not os.path.exists(result_path):
+    os.mkdir(result_path)
+
+if result_path == './result_train':
+    img_path = './train_img/'
+else:
+    img_path = './test_img/'
+
+image_names = []
 for root, dirs, files in os.walk(img_path):
     for file in files:
         image_names.append(os.path.join(root,file))
