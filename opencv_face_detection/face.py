@@ -11,13 +11,14 @@ file_path = '../eval_file.txt'
 image_folder = '../WIDER_train/images'
 image_path = []
 GT = []
-
+img_num = 0
 with open(file_path) as f:
     count = 0
     for line in f:
         if (re.search('_',line)) :
             # erase the '\n' in line
             image_path.append(os.path.join(image_folder,line[:-1]))
+            img_num += 1
             count = 0
         elif len(line.split(' ')) < 2 :
             num = int(line)
@@ -36,7 +37,7 @@ sum_pre = 0
 sum_gt = 0
 sum_precision = 0
 sum_recall = 0
-threshold = 0.1
+threshold = 0.5
 for i,j in enumerate(image_path):
     img = cv2.imread(str(image_path[i]))
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -54,7 +55,7 @@ for i,j in enumerate(image_path):
 
 print ('the precision is :', float(sum_precision) / sum_pre)
 print ('the recall is :', float(sum_recall)/ sum_gt)
-
+print ('totall img:', img_num)
 
 raise
 

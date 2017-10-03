@@ -129,7 +129,7 @@ def ssd_bboxes_select(predictions_net,
         l_classes.append(classes)
         l_scores.append(scores)
         l_bboxes.append(bboxes)
-        print ("%d, number: %d" % (i, len(classes)))
+        # print ("%d, number: %d" % (i, len(classes)))
         # Debug information.
         # l_layers.append(i)
         # l_idxes.append((i, idxes))

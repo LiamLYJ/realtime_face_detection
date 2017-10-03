@@ -30,7 +30,7 @@ def draw_results(img, rclasses, rscores, rbboxes):
 data_format = 'NHWC'
 net_shape = (440, 440)
 ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs/checkpoint'))
-select_threshold = 0.06
+select_threshold = 0.1
 nms_threshold = 0.25
 
 with tf.Graph().as_default() as graph:
@@ -83,42 +83,42 @@ with tf.Graph().as_default() as graph:
 
 
         # try feed forward graph
-        file_path = './train_img/20_Family_Group_Family_Group_20_33.jpg'
-        image = Image.open(file_path)
-        img = image.resize((440,440), Image.ANTIALIAS)
-        input = np.expand_dims(np.array(img),0)
-        # run threshold selected nodes
-        # rclasses, rscores, rbboxes,rpredictions, rlocalisations = sess.run(
-        #     [_classes,_scores,_bboxes,predictions, localisations], feed_dict={
+        # file_path = './train_img/20_Family_Group_Family_Group_20_33.jpg'
+        # image = Image.open(file_path)
+        # img = image.resize((440,440), Image.ANTIALIAS)
+        # input = np.expand_dims(np.array(img),0)
+        # # run threshold selected nodes
+        # # rclasses, rscores, rbboxes,rpredictions, rlocalisations = sess.run(
+        # #     [_classes,_scores,_bboxes,predictions, localisations], feed_dict={
+        # #     input_tensor: input
+        # # })
+        # # draw_results(img,rclasses,rscores,rbboxes)
+        # # print ('shape of rpredictions:',rpredictions[0].shape)
+        # # print ('shape of rlocalisations:',rlocalisations[0].shape)
+        # # print (rclasses)
+        # # print ('shape of rclasses:',rclasses.shape)
+        # # print (rscores)
+        # # print ('shape of rscores:',rscores.shape)
+        # # print (rbboxes)
+        # # print ('shape of rbboxes:',rbboxes.shape)
+        # # run after nms nodes
+        # rclasses_,rscores_, rbboxes_ = sess.run(
+        #     [classes_,scores_,bboxes_], feed_dict={
         #     input_tensor: input
         # })
-        # draw_results(img,rclasses,rscores,rbboxes)
-        # print ('shape of rpredictions:',rpredictions[0].shape)
-        # print ('shape of rlocalisations:',rlocalisations[0].shape)
-        # print (rclasses)
-        # print ('shape of rclasses:',rclasses.shape)
-        # print (rscores)
-        # print ('shape of rscores:',rscores.shape)
-        # print (rbboxes)
-        # print ('shape of rbboxes:',rbboxes.shape)
-        # run after nms nodes
-        rclasses_,rscores_, rbboxes_ = sess.run(
-            [classes_,scores_,bboxes_], feed_dict={
-            input_tensor: input
-        })
-        print('rscores_:',rscores_)
-        print('rbboxes:',rbboxes_)
-        draw_results(image,rclasses_,rscores_,rbboxes_)
-        raise
+        # print('rscores_:',rscores_)
+        # print('rbboxes:',rbboxes_)
+        # draw_results(image,rclasses_,rscores_,rbboxes_)
+        # raise
 
         output_node_names = 'final_bboxes,final_scores'
         input_graph_def = graph.as_graph_def()
         output_graph_def = graph_util.convert_variables_to_constants(sess, input_graph_def, output_node_names.split(","))
 
-        with open('./output_graph_nodes_prepro.txt', 'w') as f:
-            for node in output_graph_def.node:
-                f.write(node.name + '\n')
+        # with open('./output_graph_nodes_prepro.txt', 'w') as f:
+        #     for node in output_graph_def.node:
+        #         f.write(node.name + '\n')
 
-        output_graph = './mob_ssd_net_prepro.pb'
+        output_graph = './titan.pb'
         with gfile.FastGFile(output_graph, 'wb') as f:
             f.write(output_graph_def.SerializeToString())

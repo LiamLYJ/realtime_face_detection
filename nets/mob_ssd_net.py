@@ -108,7 +108,7 @@ from nets import ssd_common
 
 import tensorflow as tf
 import numpy as np
-import math 
+import math
 slim = tf.contrib.slim
 
 SSDParams = namedtuple('SSDParameters', ['img_shape',
@@ -179,12 +179,16 @@ class Mobilenet_SSD_Face(object):
         #     (28., 52.),
         #     (36., 70.)],
 
-        # new one with input 440*440
-        anchor_sizes=[(20., 55.),
-                    (55., 90.),
-                    (90., 125.),
-                    (125., 160.)],
-
+        # new one with input 440*440 / tesla
+        # anchor_sizes=[(20., 55.),
+        #             (55., 90.),
+        #             (90., 125.),
+        #             (125., 160.)],
+        # new one with input 440*440 / tian
+        anchor_sizes=[(20., 35.),
+            (35., 80.),
+            (80., 130.),
+            (130., 160.)],
         # anchor_sizes=[(30., 60.),
         #               (60., 111.),
         #               (111., 162.),

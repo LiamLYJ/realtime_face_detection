@@ -177,10 +177,11 @@ def add_to_tfrecord(record_dir, dataset_dir, annotation_path, dataset_split_name
                 # raise
 
                 # put image_data, height, width,gt_boxes,num_boxes into tfrecorder
-                try:
+                try :
                     # example = to_tfexample_raw(img_raw,height,width,gt_boxes_raw,num_boxes)
                     example = to_tfexample_raw(img_raw,height,width,gt_boxes,num_boxes)
-                except:
+                except Exception as e:
+                    print ('eror msg is :',e)
                     print ('\n***********dumped')
                     continue
                 tfrecord_writer.write(example.SerializeToString())

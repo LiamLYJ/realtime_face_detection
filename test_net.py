@@ -56,29 +56,37 @@ with slim.arg_scope(ssd_net.arg_scope(data_format=data_format, is_training=False
     summaries.add(tf.summary.image("Image", image_4d))
     f_i = 0
     # print ('sec one predict_map shape :', predictions[1].shape)
-    for predict_map in predictions:
-        # print ('shape of predict_map:', predict_map.shape)
-        # raise
-        predict_map = predict_map[:, :, :, :, 1:]
-        predict_map = tf.reduce_max(predict_map, axis=4)
-        # if f_i < 3:
-        if f_i < 4:
-            predict_list = tf.split(predict_map, 7, axis=3)
-            anchor_index = 1
-            for anchor in predict_list:
-                summaries.add(tf.summary.image("predicte_map_%d_anchor%d" % (f_i,anchor_index), tf.cast(anchor, tf.float32)))
-                anchor_index += 1
-        # else:
-        #     predict_map = tf.reduce_max(predict_map, axis=3)
-        #     predict_map = tf.expand_dims(predict_map, -1)
-        #     summaries.add(tf.summary.image("predicte_map_%d" % f_i, tf.cast(predict_map, tf.float32)))
-        f_i += 1
+    # for predict_map in predictions:
+    #     # print ('shape of predict_map:', predict_map.shape)
+    #     # raise
+    #     predict_map = predict_map[:, :, :, :, 1:]
+    #     predict_map = tf.reduce_max(predict_map, axis=4)
+    #     if f_i == 0:
+    #         predict_list = tf.split(predict_map, 4, axis=3)
+    #         anchor_index = 1
+    #         for anchor in predict_list:
+    #             summaries.add(tf.summary.image("predicte_map_%d_anchor%d" % (f_i,anchor_index), tf.cast(anchor, tf.float32)))
+    #             anchor_index += 1
+    #     elif f_i == 1:
+    #         predict_list = tf.split(predict_map, 5, axis=3)
+    #         anchor_index = 1
+    #         for anchor in predict_list:
+    #             summaries.add(tf.summary.image("predicte_map_%d_anchor%d" % (f_i,anchor_index), tf.cast(anchor, tf.float32)))
+    #             anchor_index += 1
+    #     else:
+    #         predict_list = tf.split(predict_map, 6, axis=3)
+    #         anchor_index = 1
+    #         for anchor in predict_list:
+    #             summaries.add(tf.summary.image("predicte_map_%d_anchor%d" % (f_i,anchor_index), tf.cast(anchor, tf.float32)))
+    #             anchor_index += 1
+    #     f_i += 1
     summary_op = tf.summary.merge(list(summaries), name='summary_op')
 
 
 # Restore SSD model.
 sess.run(tf.global_variables_initializer())
 ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs/checkpoint'))
+# ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs_old_model/checkpoint'))
 # if that checkpoint exists, restore from checkpoint
 saver = tf.train.Saver()
 summer_writer = tf.summary.FileWriter("./logs_test/", sess.graph)
@@ -88,7 +96,7 @@ if ckpt and ckpt.model_checkpoint_path:
 # SSD default anchor boxes.
 ssd_anchors = ssd_net.anchors(net_shape)
 
-def process_image(img, select_threshold=0.06, nms_threshold=0.25, net_shape=(440, 440)):
+def process_image(img, select_threshold=0.1, nms_threshold=0.25, net_shape=(440, 440)):
     # Run SSD network.
     rimg, rpredictions, rlocalisations, rbbox_img, summary_op_str = sess.run([image_4d, predictions, localisations, bbox_img, summary_op],
                                                               feed_dict={img_input: img})
@@ -113,7 +121,7 @@ def process_image(img, select_threshold=0.06, nms_threshold=0.25, net_shape=(440
     # Resize bboxes to original image shape. Note: useless for Resize.WARP!
     # print ('3_rclasses:' ,rclasses)
     rbboxes = np_methods.bboxes_resize(rbbox_img, rbboxes)
-    # summer_writer.add_summary(summary_op_str, 1)
+    summer_writer.add_summary(summary_op_str, 1)
     # print rclasses, rscores, rbboxes
     return rclasses, rscores, rbboxes
 
@@ -141,7 +149,7 @@ file_path = './eval_file.txt'
 image_folder = './WIDER_train/images'
 image_path = []
 GT = []
-
+img_num = 0
 with open(file_path) as f:
     count = 0
     for line in f:
@@ -149,6 +157,7 @@ with open(file_path) as f:
             # erase the '\n' in line
             image_path.append(os.path.join(image_folder,line[:-1]))
             count = 0
+            img_num += 1
         elif len(line.split(' ')) < 2 :
             num = int(line)
             boxes = np.ones((num,4))
@@ -166,7 +175,7 @@ sum_pre = 0
 sum_gt = 0
 sum_precision = 0
 sum_recall = 0
-threshold = 0.1
+threshold = 0.5
 
 for i,j in enumerate(image_path):
     img = cv2.imread(str(image_path[i]))
@@ -187,10 +196,10 @@ for i,j in enumerate(image_path):
 
 print ('the precision is :', float(sum_precision) / sum_pre)
 print ('the recall is :', float(sum_recall)/ sum_gt)
-
+print ('totall img:', img_num)
 raise
 
-# draw testing results 
+# draw testing results
 result_path = RESULT_PATH
 if not os.path.exists(result_path):
     os.mkdir(result_path)
