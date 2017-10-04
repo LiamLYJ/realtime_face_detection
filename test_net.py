@@ -85,8 +85,8 @@ with slim.arg_scope(ssd_net.arg_scope(data_format=data_format, is_training=False
 
 # Restore SSD model.
 sess.run(tf.global_variables_initializer())
-ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs/checkpoint'))
-# ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs_old_model/checkpoint'))
+ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs_titan/checkpoint'))
+# ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs_tesla/checkpoint'))
 # if that checkpoint exists, restore from checkpoint
 saver = tf.train.Saver()
 summer_writer = tf.summary.FileWriter("./logs_test/", sess.graph)

@@ -29,8 +29,8 @@ def draw_results(img, rclasses, rscores, rbboxes):
 
 data_format = 'NHWC'
 net_shape = (440, 440)
-ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs/checkpoint'))
-select_threshold = 0.1
+ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs_titan/checkpoint'))
+select_threshold = 0.07
 nms_threshold = 0.25
 
 with tf.Graph().as_default() as graph:
@@ -118,7 +118,8 @@ with tf.Graph().as_default() as graph:
         # with open('./output_graph_nodes_prepro.txt', 'w') as f:
         #     for node in output_graph_def.node:
         #         f.write(node.name + '\n')
-
-        output_graph = './titan.pb'
+        if not os.path.exists('./tf_files'):
+            os.mkdir('./tf_files')
+        output_graph = './tf_files/titan.pb'
         with gfile.FastGFile(output_graph, 'wb') as f:
             f.write(output_graph_def.SerializeToString())

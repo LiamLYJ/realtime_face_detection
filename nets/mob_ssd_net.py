@@ -180,11 +180,11 @@ class Mobilenet_SSD_Face(object):
         #     (36., 70.)],
 
         # new one with input 440*440 / tesla
-        # anchor_sizes=[(20., 55.),
-        #             (55., 90.),
-        #             (90., 125.),
+        # anchor_sizes=[(20., 35.),
+        #             (35., 80.),
+        #             (80., 125.),
         #             (125., 160.)],
-        # new one with input 440*440 / tian
+        # new one with input 440*440 / titan
         anchor_sizes=[(20., 35.),
             (35., 80.),
             (80., 130.),

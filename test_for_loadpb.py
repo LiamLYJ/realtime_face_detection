@@ -24,10 +24,8 @@ def load_graph(frozen_graph_filename):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # parser.add_argument("--frozen_model_filename", default="./mob_ssd_net.pb", type=str, help="Frozen model file to import")
-    # parser.add_argument("--frozen_model_filename", default="./mob_ssd_net_prepro.pb", type=str, help="Frozen model file to import")
-    # parser.add_argument("--frozen_model_filename", default="./optimized_graph.pb", type=str, help="Frozen model file to import")
-    parser.add_argument("--frozen_model_filename", default="./tf_files/titan.pb", type=str, help="Frozen model file to import")
+    # parser.add_argument("--frozen_model_filename", default="./tf_files/titan.pb", type=str, help="Frozen model file to import")
+    parser.add_argument("--frozen_model_filename", default="./tf_files/rounded_titan.pb", type=str, help="Frozen model file to import")
     args = parser.parse_args()
     graph = load_graph(args.frozen_model_filename)
 
@@ -43,7 +41,8 @@ if __name__ == '__main__':
     # evalure molde for precision and recall
     import re
     from evaluation import evaluate
-    file_path = './eval_file_part.txt'
+    # file_path = './eval_file_part.txt'
+    file_path = './eval_file.txt'
     image_folder = './WIDER_train/images'
     image_path = []
     GT = []

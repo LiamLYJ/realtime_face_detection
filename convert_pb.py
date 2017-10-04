@@ -9,7 +9,7 @@ from tensorflow.python.framework import graph_util
 from tensorflow.python.platform import gfile
 
 data_format = 'NHWC'
-ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs/checkpoint'))
+ckpt = tf.train.get_checkpoint_state(os.path.dirname('./logs_titan/checkpoint'))
 
 with tf.Graph().as_default() as graph:
     input_tensor = tf.placeholder(tf.float32, shape=(None, 440, 440, 3), name='input_image')
